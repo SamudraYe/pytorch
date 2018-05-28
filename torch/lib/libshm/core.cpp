@@ -28,7 +28,7 @@ libshm_context * libshm_context_new(const char *manager_handle, const char *file
 }
 
 void libshm_context_free(libshm_context *ctx) {
-  delete ctx->manager_handle;
+  delete[] ctx->manager_handle;
   delete ctx;
 }
 
@@ -104,7 +104,7 @@ AllocInfo get_alloc_info(libshm_context *ctx) {
   return info;
 }
 
-void * libshm_alloc(void *_ctx, long size) {
+void * libshm_alloc(void *_ctx, ptrdiff_t size) {
   // TODO: unlock GIL when contacting the manager
   auto *ctx = (libshm_context*)_ctx;
   try {
@@ -127,7 +127,7 @@ void * libshm_alloc(void *_ctx, long size) {
   return THRefcountedMapAllocator.malloc(ctx->th_context, size);
 }
 
-void * libshm_realloc(void *_ctx, void *data, long size) {
+void * libshm_realloc(void *_ctx, void *data, ptrdiff_t size) {
   THError("cannot realloc shared memory");
   return NULL;
 }

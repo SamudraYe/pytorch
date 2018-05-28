@@ -92,6 +92,13 @@ def parse_header(path):
             else:
                 fn_name = fn_name[:-1]
             generic_functions.append(Function(fn_name))
+        elif l.startswith('THC_API void THNN_'):
+            fn_name = l.lstrip('THC_API void THNN_')
+            if fn_name[0] == '(' and fn_name[-2] == ')':
+                fn_name = fn_name[1:-2]
+            else:
+                fn_name = fn_name[:-1]
+            generic_functions.append(Function(fn_name))
         elif l:
             t, name = l.split()
             if '*' in name:
@@ -102,11 +109,10 @@ def parse_header(path):
 
 
 def load_backend(t, lib, generic_functions, mixins=tuple()):
-    lib_handle = importlib.import_module(lib)
     backend_name = 'THNN{}Backend'.format(t)
     backend = type(backend_name, mixins + (THNNBackendBase,), {})()
     for function in generic_functions:
         full_fn_name = '{}{}'.format(t, function.name)
-        fn = getattr(lib_handle, full_fn_name)
+        fn = getattr(lib, full_fn_name)
         backend.register_method(function.name, fn)
     return backend

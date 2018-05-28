@@ -24,6 +24,14 @@ class KwargsPlugin(CWrapPlugin):
                 for option in declaration['options']:
                     for arg in option['arguments']:
                         arg['no_kwargs'] = True
+        # we need to use offsets for arg position in *arg if kwarg_only args
+        # are not at the end
+        for declaration in declarations:
+            for option in declaration['options']:
+                offset = 0
+                for arg in option['arguments']:
+                    if arg.get('kwarg_only'):
+                        arg['no_idx'] = True
         return declarations
 
     def get_arg_accessor(self, arg, option):
